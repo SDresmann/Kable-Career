@@ -12,38 +12,23 @@ const Footer = () => {
                 </div>
                 <div className='col-3'>
                     <NavLink className='footer-links'>ToolKit</NavLink>
-                    <NavLink className='footer-links'>Eportfolio</NavLink>
                     <NavLink className='footer-links'>Resume Builder</NavLink>
-                    <NavLink className='footer-links'>Mock Job Application</NavLink>
-                    <NavLink className='footer-links'>Cover Letter</NavLink>
-                    <NavLink className='footer-links'>Thank You Letter</NavLink>
-                    <NavLink className='footer-links'>Business Plan Builder</NavLink>
-                    <NavLink className='footer-links'>Log Out</NavLink>
                 </div>
                 <div className='col-3'>
                 <NavLink className='footer-links'>Modules</NavLink>
-                    <NavLink className='footer-links'>Getting to Know Yourself</NavLink>
-                    <NavLink className='footer-links'>Managing Changes & Your Attitude</NavLink>
-                    <NavLink className='footer-links'>Goal Setting</NavLink>
-                    <NavLink className='footer-links'>Learning to Learn & Stress Relief Strategies</NavLink>
-                    <NavLink className='footer-links'>Time Management</NavLink>
-                    <NavLink className='footer-links'>Study Skills</NavLink>
-                    <NavLink className='footer-links'>Becoming on Effective Online Student</NavLink>
-                    <NavLink className='footer-links'>Responsible Borrowing & Budgeting</NavLink>
-                    <NavLink className='footer-links'>Working in Teams</NavLink>
-                </div>
-                <div className='col-3 '>
-                <NavLink className='footer-links'>Other</NavLink>
-                    <NavLink className='footer-links'>Cultural Diversity & Conflict Resolution</NavLink>
+                    <NavLink className='footer-links'>Professional Branding & Resume</NavLink>
                     <NavLink className='footer-links'>Effective Communication & Networking</NavLink>
-                    <NavLink className='footer-links'>Professional Branding: Resume & Cover Letter</NavLink>
-                    <NavLink className='footer-links'>Best Job Search Strategies</NavLink>
-                    <NavLink className='footer-links'>Preparing for the Interview</NavLink>
-                    <NavLink className='footer-links'>The Interview Process</NavLink>
-                    <NavLink className='footer-links'>Answerig Difficult Questions</NavLink>
+                    <NavLink className='footer-links'>Business Etiquette</NavLink>
+                    <NavLink className='footer-links'>Acing The Interview</NavLink>
+                    <NavLink className='footer-links'>Time Management</NavLink>
+                    <NavLink className='footer-links'>Working In Teams</NavLink>
+                    <NavLink className='footer-links'>Technical Interview Prep</NavLink>
+                    <NavLink className='footer-links'>The Job Search</NavLink>
                     <NavLink className='footer-links'>On the Job Success</NavLink>
-                    <NavLink className='footer-links'>Planning for Your Future</NavLink>
+                    <NavLink className='footer-links'>Kable Academy Final Steps</NavLink>
+                    <NavLink className='footer-links'>Managing Money & Payment</NavLink>
                 </div>
+
             </div>
            
         

@@ -3,7 +3,7 @@ import './App.css';
 import Navbar from './components/Navbar';
 import LifeSkills from './pages/LifeSkills';
 import ToolKit from './pages/ToolKit';
-import Footer from './components/Footer';
+// import Footer from './components/Footer';
 import ProfessionalBrandingResume from './pages/GettingToKnowYourself';
 import EffectiveCommunicationAndNetworking from './pages/EffectiveCommunicationAndNetwork';
 import CraftingThePerfectElevatorPitch from './pages/CraftingThePerfectElevatorPitch';
@@ -40,7 +40,7 @@ function App() {
           <Route path='/managing-money-and-payments' element={<ManagingMoneyAndPayment />} />
           <Route path='/resume-upload' element={<ResumeUploaderPage />} />
         </Routes>
-        <Footer />
+        {/* <Footer /> */}
       </BrowserRouter>
     </div>
   );
