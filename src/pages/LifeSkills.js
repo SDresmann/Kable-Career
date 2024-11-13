@@ -21,7 +21,7 @@ const LifeSkills = () => {
     return (
         <div className="container">
             <h1>LIFE SKILLS</h1>
-            <p>Depending on where you are in your career life cycle, choose the topic you would like to learn more about:</p>
+            <p>This will be your journey through Kable Academy's Career Services.</p>
             <div className="grid">
                 {lifeSkills.map((skill, index) => (
                     <div key={index} className="card" style={{ backgroundColor: skill.color }}>

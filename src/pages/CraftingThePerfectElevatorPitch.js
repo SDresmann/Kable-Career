@@ -24,9 +24,9 @@ const CraftingThePerfectElevatorPitch = () => {
                     <h5>Videos</h5>
                 </div>
                 <div className='col d-inline-flex flex-column'>
-                    <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>
-                    <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>
-                    <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>
+                    <a href='https://www.youtube.com/watch?v=r-iETptU7JY'><button className='btn btn-outline-light mb-1 mx-5'>Hello</button></a>
+                    <a href='https://www.youtube.com/watch?v=Lb0Yz_5ZYzI'><button className='btn btn-outline-light mb-1 mx-5'>Hello</button></a>
+                    <a href='https://www.youtube.com/watch?v=Qncmc-yx3gI'><button className='btn btn-outline-light mb-1 mx-5'>Hello</button></a>
                 </div>
                 <div className='col d-inline-flex flex-column'>
                     <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>

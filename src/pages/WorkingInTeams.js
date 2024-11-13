@@ -25,9 +25,9 @@ const WorkingInTeams = () => {
                     <h5>Videos</h5>
                 </div>
                 <div className='col d-inline-flex flex-column'>
-                    <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>
-                    <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>
-                    <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>
+                    <a href='https://www.youtube.com/watch?v=S7PhGkEQUWw'><button className='btn btn-outline-light mb-1 mx-5'>Hello</button></a>
+                    <a href='https://www.youtube.com/watch?v=JmytOJC_C4o'><button className='btn btn-outline-light mb-1 mx-5'>Hello</button></a>
+                    <a href='https://www.youtube.com/watch?v=92ht92Do-tk'><button className='btn btn-outline-light mb-1 mx-5'>Hello</button></a>
                 </div>
                 <div className='col d-inline-flex flex-column'>
                     <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>

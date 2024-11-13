@@ -25,9 +25,10 @@ const JobSearch = () => {
                     <h5>Videos</h5>
                 </div>
                 <div className='col d-inline-flex flex-column'>
-                    <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>
-                    <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>
-                    <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>
+                    <a href='https://www.youtube.com/watch?v=PnxBkOqThjI'><button className='btn btn-outline-light mb-1 mx-5'>Hello</button></a>
+                    <a href='https://www.youtube.com/watch?v=J6LtHHQOg5w'><button className='btn btn-outline-light mb-1 mx-5'>Hello</button></a>
+                    <a href='https://www.youtube.com/watch?v=JF0IukoW8to'><button className='btn btn-outline-light mb-1 mx-5'>Hello</button></a>
+
                 </div>
                 <div className='col d-inline-flex flex-column'>
                     <button className='btn btn-outline-light mb-1 mx-5'>Hello</button>
