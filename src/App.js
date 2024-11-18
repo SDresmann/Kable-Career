@@ -17,6 +17,7 @@ import ResumeUploaderPage from './components/ResumeUploaderPage';
 import AcingTheInterview from './pages/AcingTheInterview';
 import OnTheJobSuccess from './pages/OnTheJobSuccess';
 import KableAcademyFinalSteps from './pages/KableAcademyFinalSteps';
+import FolderUpload from './pages/FolderUpload';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path='/kable-academy-final-steps' element={<KableAcademyFinalSteps />} />
           <Route path='/managing-money-and-payments' element={<ManagingMoneyAndPayment />} />
           <Route path='/resume-upload' element={<ResumeUploaderPage />} />
+          <Route path='/upload' element={<FolderUpload />} />
         </Routes>
         {/* <Footer /> */}
       </BrowserRouter>

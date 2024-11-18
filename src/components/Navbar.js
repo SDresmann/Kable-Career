@@ -14,6 +14,7 @@ const Navbar = () => {
                         <div className="navbar-nav">
                             <NavLink className="nav-link" aria-current="page" to="/">Life Skills</NavLink>
                             <NavLink className="nav-link " to='/toolkit' aria-disabled="true">ToolKit</NavLink>
+                            <NavLink className="nav-link " to='/upload' aria-disabled="true">Folder Upload</NavLink>
                         </div>
                     </div>
                 </div>
