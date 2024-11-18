@@ -42,17 +42,22 @@ const FolderUpload = () => {
 
   return (
     <div>
-      <h2>Upload Files</h2>
+      <h2>Upload Interview</h2>
+      <ul>
+        <li>Step: 1<p>type in your folder name make sure you name the file your first and last name</p></li>
+        <li>Step: 2<p>click choose files make sure that the files are mp4</p></li>
+        <li>Step: 3<p>reapet these steps till all you videos are uploaded</p></li>
+      </ul>
       <form onSubmit={handleUpload}>
-        <div>
+        <div className='my-3'>
           <label>Folder Name:</label>
           <input type="text" value={folderName} onChange={handleFolderNameChange} required />
         </div>
-        <div>
+        <div className='my-3'>
           <label>Select Files:</label>
           <input type="file" multiple onChange={handleFileChange} required />
         </div>
-        <button type="submit">Upload</button>
+        <button className='my-3' type="submit">Upload</button>
       </form>
     </div>
   );
