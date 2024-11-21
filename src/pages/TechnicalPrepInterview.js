@@ -9,10 +9,10 @@ const TechnicalInterviewPrep = () => {
                 <div className='col-9'>
                     <p>Objectives</p>
                     <ol>
-                        <li>Discover What is most Important to you</li>
-                        <li>Discribe your personal and professional values</li>
-                        <li>Uncover what motivates your achivements and overall happiness</li>
-                        <li>Understand the concept of "working," justify it, and looking foward to it.</li>
+                        <li>Review fundamental technical concepts and skills</li>
+                        <li>Practice solving coding and problem-solving challenges</li>
+                        <li>Prepare concise and clear explanations for past projects</li>
+                        <li>Develop strategies for answering behavioral questions effectively</li>
                     </ol>
                 </div>
                 <div className='col-3'>

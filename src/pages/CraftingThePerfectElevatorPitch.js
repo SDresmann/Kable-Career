@@ -8,10 +8,10 @@ const CraftingThePerfectElevatorPitch = () => {
                 <div className='col-9'>
                     <p>Objectives</p>
                     <ol>
-                        <li>Discover What is most Important to you</li>
-                        <li>Discribe your personal and professional values</li>
-                        <li>Uncover what motivates your achivements and overall happiness</li>
-                        <li>Understand the concept of "working," justify it, and looking foward to it.</li>
+                        <li>Learn how to engage in a strong opening</li>
+                        <li>Discribe your experties</li>
+                        <li>Making the elevator pitch the right length</li>
+                        <li>End with a call to action</li>
                     </ol>
                 </div>
                 <div className='col-3'>

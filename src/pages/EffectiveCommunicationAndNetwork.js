@@ -10,9 +10,9 @@ const EffectiveCommunicationAndNetworking = () => {
                     <p>Objectives</p>
                     <ol>
                         <li>How to speak to recruters</li>
-                        <li>Discribe your personal and professional values</li>
-                        <li>Uncover what motivates your achivements and overall happiness</li>
-                        <li>Understand the concept of "working," justify it, and looking foward to it.</li>
+                        <li>Learn how to market yourself on Linkeden</li>
+                        <li>Creating professional emails</li>
+                        <li>Appropriate talk in the work place</li>
                     </ol>
                 </div>
                 <div className='col-3'>

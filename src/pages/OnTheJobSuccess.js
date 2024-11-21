@@ -9,10 +9,10 @@ const OnTheJobSuccess = () => {
                 <div className='col-9'>
                     <p>Objectives</p>
                     <ol>
-                        <li>Discover What is most Important to you</li>
-                        <li>Discribe your personal and professional values</li>
-                        <li>Uncover what motivates your achivements and overall happiness</li>
-                        <li>Understand the concept of "working," justify it, and looking foward to it.</li>
+                        <li>Understand and meet job expectations</li>
+                        <li>Communicate effectively with colleagues and supervisors</li>
+                        <li>Continuously develop skills and seek feedback</li>
+                        <li>Demonstrate reliability and a positive work ethic</li>
                     </ol>
                 </div>
                 <div className='col-3'>

@@ -9,32 +9,28 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-// Import the Token model
 const Token = require('./models/token.models');
 
 const app = express();
-
-// Load environment variables
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:5000/auth/callback';
-const AUTHORIZATION_URL = 'https://app.hubspot.com/oauth/authorize';
-const TOKEN_URL = 'https://api.hubapi.com/oauth/v1/token';
-const SCOPES = 'files crm.objects.contacts.read crm.objects.contacts.write';
-
 app.use(cors());
 app.use(bodyParser.json());
 
-// Connect to MongoDB
+// Environment Variables
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:5000/auth/callback';
+const TOKEN_URL = 'https://api.hubapi.com/oauth/v1/token';
+const AUTHORIZATION_URL = 'https://app.hubspot.com/oauth/authorize';
+const SCOPES = 'files crm.objects.contacts.read crm.objects.contacts.write';
+
+// MongoDB Connection
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true });
-const connection = mongoose.connection;
-
-connection.once('open', () => {
-  console.log("MongoDB is connected");
+mongoose.connection.once('open', () => {
+  console.log('MongoDB is connected');
 });
 
-// Step 1: Redirect to HubSpot's OAuth 2.0 server
+// OAuth 2.0 Redirect
 app.get('/auth', (req, res) => {
   const authorizationUri = `${AUTHORIZATION_URL}?${querystring.stringify({
     client_id: CLIENT_ID,
@@ -45,14 +41,10 @@ app.get('/auth', (req, res) => {
   res.redirect(authorizationUri);
 });
 
-// Step 2: Handle the OAuth 2.0 server response and store tokens
+// Handle OAuth Callback
 app.get('/auth/callback', async (req, res) => {
   const { code } = req.query;
-
-  if (!code) {
-    console.log('No authorization code provided');
-    return res.status(400).send('No authorization code provided');
-  }
+  if (!code) return res.status(400).send('No authorization code provided');
 
   try {
     const response = await axios.post(TOKEN_URL, querystring.stringify({
@@ -65,41 +57,28 @@ app.get('/auth/callback', async (req, res) => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
 
-    const accessToken = response.data.access_token;
-    const refreshToken = response.data.refresh_token;
-    const expiresAt = Date.now() + response.data.expires_in * 1000;
+    const { access_token, refresh_token, expires_in } = response.data;
+    const expiresAt = Date.now() + expires_in * 1000;
 
-    console.log('Access token:', accessToken);
-    console.log('Refresh token:', refreshToken);
+    await Token.findOneAndUpdate({}, {
+      accessToken: access_token,
+      refreshToken: refresh_token,
+      expiresAt,
+    }, { upsert: true });
 
-    // Attempt to save the token to MongoDB
-    try {
-      const newToken = new Token({ accessToken, refreshToken, expiresAt });
-      await newToken.save(); // Important: use await
-      console.log('Tokens saved to MongoDB successfully');
-      res.send('Authentication successful. You can close this window.');
-    } catch (saveError) {
-      console.error('Error saving tokens to MongoDB:', saveError);
-      res.status(500).send('Error saving tokens to MongoDB');
-    }
+    res.send('Authentication successful. You can close this window.');
   } catch (error) {
-    console.error('Error during OAuth token exchange:', error.response ? error.response.data : error.message);
+    console.error('OAuth callback error:', error.response?.data || error.message);
     res.status(500).send('Authentication failed');
   }
 });
 
-// Step 3: Middleware to refresh tokens if expired
+// Middleware for Token Management
 async function getValidAccessToken() {
-  let token = await Token.findOne(); // Get the stored token
-  if (!token) {
-    throw new Error('No tokens found in the database');
-  }
+  const token = await Token.findOne();
+  if (!token) throw new Error('No tokens found in the database');
 
-  // Check if token is expired
   if (Date.now() > token.expiresAt) {
-    console.log('Access token expired, refreshing...');
-
-    // Refresh the token
     try {
       const response = await axios.post(TOKEN_URL, querystring.stringify({
         grant_type: 'refresh_token',
@@ -107,31 +86,249 @@ async function getValidAccessToken() {
         client_secret: CLIENT_SECRET,
         refresh_token: token.refreshToken,
       }), {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
 
-      // Update tokens in MongoDB
       token.accessToken = response.data.access_token;
-      token.refreshToken = response.data.refresh_token || token.refreshToken; // Use old refresh token if not returned
+      token.refreshToken = response.data.refresh_token || token.refreshToken;
       token.expiresAt = Date.now() + response.data.expires_in * 1000;
 
       await token.save();
-      return token.accessToken;
     } catch (error) {
-      console.error('Error refreshing access token:', error.response ? error.response.data : error.message);
+      console.error('Token refresh error:', error.response?.data || error.message);
       throw new Error('Failed to refresh access token');
     }
   }
 
-  return token.accessToken; // Return valid access token
+  return token.accessToken;
 }
 
-// Step 4: File upload handling (with token validation)
+// Multer Configuration
 const upload = multer({ dest: 'uploads/' });
 
-// Function to get a contact ID by email from HubSpot
+// Create Folder in HubSpot if Not Exists
+async function createFolderIfNotExists(folderName, accessToken) {
+  try {
+    // Attempt to create the folder directly
+    const createResponse = await axios.post(
+      'https://api.hubapi.com/files/v3/folders',
+      { name: folderName },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log(`Folder "${folderName}" created with ID: ${createResponse.data.id}`);
+    return createResponse.data.id;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || error.message;
+    console.error('Error creating folder:', errorMessage);
+
+    // If the error is "Folder already exists", extract the folder ID from the response
+    if (errorMessage.includes('Folder already exists')) {
+      const existingFolderId = error.response?.data?.context?.folderId;
+      console.log(`Folder "${folderName}" already exists with ID: ${existingFolderId}`);
+      return existingFolderId;
+    }
+
+    throw error;
+  }
+}
+
+
+// File Upload Route
+app.post('/api/uploadFoldersandFiles', upload.array('files'), async (req, res) => {
+  const { folderName } = req.body;
+  const files = req.files;
+
+  // Check for missing folder name or files
+  if (!folderName || files.length === 0) {
+    console.log('Missing folder name or files.');
+    return res.status(400).send('Folder name and files are required.');
+  }
+
+  try {
+    // Get a valid access token
+    const accessToken = await getValidAccessToken();
+    console.log('Access token obtained:', accessToken);
+
+    // Get or create the folder ID
+    const folderId = await createFolderIfNotExists(folderName, accessToken);
+    console.log(`Folder ID: ${folderId}`);
+
+    // Map through each file and upload to HubSpot
+    const uploadPromises = files.map(async (file) => {
+      console.log(`Uploading file: ${file.originalname}`);
+
+      // Explicitly set the MIME type to video/mp4 for all uploads
+      const mimeType = 'video/mp4';
+      console.log(`Detected MIME type from Multer: ${file.mimetype}`);
+
+      const formData = new FormData();
+      formData.append('file', fs.createReadStream(file.path), {
+        filename: file.originalname,
+        contentType: mimeType,
+      });
+      formData.append('folderId', folderId);
+      formData.append('options', JSON.stringify({ access: 'PUBLIC_INDEXABLE' }));
+
+      try {
+        // Make the API request to upload the file
+        const uploadResponse = await axios.post(
+          'https://api.hubapi.com/files/v3/files',
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': mimeType, // Set the Content-Type explicitly
+              ...formData.getHeaders(),
+            },
+            timeout: 300000, // 5-minute timeout for large video files
+          }
+        );
+
+        console.log(`File uploaded successfully: ${uploadResponse.data.url}`);
+        // Delete the local file after successful upload
+        fs.unlinkSync(file.path);
+        return uploadResponse.data;
+      } catch (uploadError) {
+        console.error('Error during file upload to HubSpot:', uploadError.response?.data || uploadError.message);
+        throw uploadError;
+      }
+    });
+
+    // Wait for all file uploads to complete
+    const uploadedFiles = await Promise.all(uploadPromises);
+    res.status(200).json({ message: 'Files uploaded successfully', uploadedFiles });
+  } catch (error) {
+    console.error('General error during file upload:', error);
+    res.status(500).send('Error uploading files to HubSpot.');
+  }
+});
+
+// Resume Upload Route
+// Multer Configuration for Resumes
+const resumeUpload = multer({
+  dest: 'uploads/',
+  limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only PDF and Word documents are allowed.'));
+    }
+  },
+});
+
+// Resume Upload Route
+app.post('/api/resume-upload', resumeUpload.single('file'), async (req, res) => {
+  const { email } = req.body;
+  const file = req.file;
+
+  if (!email || !file) {
+    return res.status(400).send('Email and resume file are required.');
+  }
+
+  try {
+    // Get a valid access token
+    const accessToken = await getValidAccessToken();
+    console.log('Access token obtained:', accessToken);
+
+    // Get contact ID from email
+    const contactId = await getContactIdByEmail(email, accessToken);
+    console.log(`Contact ID for email ${email}: ${contactId}`);
+
+    // Determine the MIME type and ensure correct extension
+    const mimeType = file.mimetype;
+    console.log(`Detected MIME type: ${mimeType}`);
+
+    const fileExtension =
+      mimeType === 'application/pdf' ? '.pdf' :
+      mimeType === 'application/msword' ? '.doc' :
+      mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ? '.docx' :
+      '';
+    if (!fileExtension) {
+      throw new Error('Invalid file type.');
+    }
+
+    // Ensure the file has the correct extension
+    const filePath = `${file.path}${fileExtension}`;
+    fs.renameSync(file.path, filePath);
+
+    // Prepare the form data for the file upload
+    const formData = new FormData();
+    formData.append('file', fs.createReadStream(filePath), {
+      filename: file.originalname,
+      contentType: mimeType,
+    });
+    formData.append('folderPath', 'documents/resumes');
+    formData.append('options', JSON.stringify({ access: 'PUBLIC_INDEXABLE' }));
+
+    // Upload the resume file to HubSpot
+    const fileUploadResponse = await axios.post(
+      'https://api.hubapi.com/files/v3/files',
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          ...formData.getHeaders(),
+        },
+      }
+    );
+
+    console.log('File uploaded successfully:', fileUploadResponse.data);
+
+    const fileUrl = fileUploadResponse.data.url;
+
+    // Update the contact with the file URL
+    const updateResponse = await updateContactWithFileUrl(contactId, fileUrl, accessToken);
+    console.log('Contact updated successfully:', updateResponse);
+
+    fs.unlinkSync(filePath); // Remove the file after upload
+
+    res.status(200).json(updateResponse);
+  } catch (error) {
+    console.error('Error uploading resume to HubSpot:', error.response?.data || error.message);
+    res.status(500).send('Error uploading resume to HubSpot.');
+  }
+});
+
+
+// Helper: Update Contact with File URL
+async function updateContactWithFileUrl(contactId, fileUrl, accessToken) {
+  try {
+    const response = await axios.patch(
+      `https://api.hubapi.com/crm/v3/objects/contacts/${contactId}`,
+      {
+        properties: {
+          resume: fileUrl, // Assuming 'resume' is the custom property in HubSpot
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating contact with file URL:', error.response?.data || error.message);
+    throw error;
+  }
+}
+
+
+// Helper: Get Contact ID by Email
 async function getContactIdByEmail(email, accessToken) {
   try {
     const response = await axios.post(
@@ -152,7 +349,7 @@ async function getContactIdByEmail(email, accessToken) {
       },
       {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
       }
@@ -164,87 +361,38 @@ async function getContactIdByEmail(email, accessToken) {
 
     return response.data.results[0].id;
   } catch (error) {
-    console.error('Error fetching contact ID:', error.response ? error.response.data : error.message);
+    console.error('Error fetching contact ID:', error.response?.data || error.message);
     throw error;
   }
 }
 
-// Function to update a contact with the file URL in HubSpot
+// Helper: Update Contact with File URL
 async function updateContactWithFileUrl(contactId, fileUrl, accessToken) {
   try {
     const response = await axios.patch(
       `https://api.hubapi.com/crm/v3/objects/contacts/${contactId}`,
       {
         properties: {
-          resume: fileUrl // Assuming 'resume' is the property name in HubSpot to store the file URL
-        }
+          resume: fileUrl, // Assuming 'resume' is the custom property in HubSpot
+        },
       },
       {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
       }
     );
 
     return response.data;
   } catch (error) {
-    console.error('Error updating contact with file URL:', error.response ? error.response.data : error.message);
+    console.error('Error updating contact with file URL:', error.response?.data || error.message);
     throw error;
   }
 }
 
-// Resume upload route
-app.post('/api/resume-upload', upload.single('file'), async (req, res) => {
-  const { email } = req.body;
-  const file = req.file;
 
-  if (!email || !file) {
-    return res.status(400).send('Email and resume file are required.');
-  }
-
-  try {
-    const accessToken = await getValidAccessToken(); // Ensure a valid token is available before the upload
-
-    const contactId = await getContactIdByEmail(email, accessToken); // Get the contact ID using the access token
-    console.log(`Contact ID for email ${email}: ${contactId}`);
-
-    // Prepare the form data for the file upload
-    const fileFormData = new FormData();
-    fileFormData.append('file', fs.createReadStream(file.path));
-    fileFormData.append('folderPath', 'documents/resumes');
-    fileFormData.append('options', JSON.stringify({ access: 'PUBLIC_INDEXABLE' }));
-
-    // Upload the resume file to HubSpot
-    const fileUploadResponse = await axios.post(
-      'https://api.hubapi.com/files/v3/files',
-      fileFormData,
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`, // Pass the valid access token
-          ...fileFormData.getHeaders(),
-        },
-      }
-    );
-
-    console.log('File uploaded successfully:', fileUploadResponse.data);
-
-    const fileUrl = fileUploadResponse.data.url;
-
-    // Update the contact with the file URL
-    const updateResponse = await updateContactWithFileUrl(contactId, fileUrl, accessToken);
-    console.log('Contact updated successfully:', updateResponse);
-
-    fs.unlinkSync(file.path); // Remove the file after upload
-
-    res.status(200).json(updateResponse);
-  } catch (error) {
-    console.error('Error uploading resume to HubSpot:', error.response ? error.response.data : error.message);
-    res.status(500).send('Error uploading resume to HubSpot.');
-  }
-});
-
-// Start the server
+// Start the Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

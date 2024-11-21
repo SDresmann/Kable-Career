@@ -9,7 +9,7 @@ const ManagingMoneyAndPayment = () => {
                 <div className='col-9'>
                     <p>Objectives</p>
                     <ol>
-                        <li>Discover What is most Important to you</li>
+                        <li>Payment options</li>
                         <li>Discribe your personal and professional values</li>
                         <li>Uncover what motivates your achivements and overall happiness</li>
                         <li>Understand the concept of "working," justify it, and looking foward to it.</li>

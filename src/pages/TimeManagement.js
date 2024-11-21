@@ -9,10 +9,10 @@ const TimeManagement = () => {
                 <div className='col-9'>
                     <p>Objectives</p>
                     <ol>
-                        <li>Discover What is most Important to you</li>
-                        <li>Discribe your personal and professional values</li>
-                        <li>Uncover what motivates your achivements and overall happiness</li>
-                        <li>Understand the concept of "working," justify it, and looking foward to it.</li>
+                        <li>Prioritize tasks effectively</li>
+                        <li>Set realistic goals and deadlines</li>
+                        <li>Minimize distractions</li>
+                        <li>Use tools to track and organize time</li>
                     </ol>
                 </div>
                 <div className='col-3'>

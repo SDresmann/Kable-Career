@@ -9,10 +9,10 @@ const JobSearch = () => {
                 <div className='col-9'>
                     <p>Objectives</p>
                     <ol>
-                        <li>Discover What is most Important to you</li>
-                        <li>Discribe your personal and professional values</li>
-                        <li>Uncover what motivates your achivements and overall happiness</li>
-                        <li>Understand the concept of "working," justify it, and looking foward to it.</li>
+                        <li>Research and identify target job opportunities</li>
+                        <li>Tailor your resume and cover letter for each role</li>
+                        <li>Leverage professional networks and online platforms</li>
+                        <li>Follow up on applications and maintain persistence</li>
                     </ol>
                 </div>
                 <div className='col-3'>
