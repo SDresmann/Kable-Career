@@ -22,7 +22,7 @@ const ResumeBuilder = () => {
     formData.append('email', email);
 
     try {
-      const response = await axios.post('/api/resume-upload', formData, {
+      const response = await axios.post('https://kable-career-backend.onrender.com/api/resume-upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
