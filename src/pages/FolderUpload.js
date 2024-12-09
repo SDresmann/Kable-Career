@@ -25,7 +25,7 @@ const FolderUpload = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/uploadFoldersandFiles',
+        'https://kable-career-backend.onrender.com/api/uploadFoldersandFiles',
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
